@@ -16,5 +16,12 @@ if(BUILD_TESTING)
         z80-recomp-core::core)
     add_test(NAME z80_recomp_core_header_smoke
              COMMAND z80_recomp_core_header_smoke)
+
+    add_executable(z80_recomp_core_ordered_read16_test
+        tests/ordered_read16_test.c)
+    target_link_libraries(z80_recomp_core_ordered_read16_test PRIVATE
+        z80-recomp-core::core)
+    add_test(NAME z80_recomp_core_ordered_read16
+             COMMAND z80_recomp_core_ordered_read16_test)
 endif()
 
