@@ -34,6 +34,16 @@ no ROM, captured Z80 RAM, generated game source, emulator, or platform bus.
 
 ## Licensing and provenance
 
+For this project's code covered by the [PolyForm Noncommercial License](LICENSE),
+[PERMISSIONS.md](PERMISSIONS.md) grants standing permission for voluntary
+donations, sponsorships, and advertising revenue, including support for broader
+development initiatives. Payment must not buy access to the software, games
+built with it, or their updates, features, or game content, including early access.
+
+Matthew Stanley has authority from the relevant copyright holders to grant
+these permissions for the project's PolyForm-covered code. Third-party
+components and code explicitly licensed under other terms retain those terms.
+
 Author-owned extraction/glue is licensed under the included PolyForm
 Noncommercial License 1.0.0. Instruction semantic helpers were derived from
 Nicolas Allemand's MIT-licensed SuperZazu Z80 core; its notice is retained in
