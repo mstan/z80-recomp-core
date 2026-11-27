@@ -119,6 +119,8 @@ static const char *cond(int cc){
     return C[cc & 7];
 }
 
+const char *z80_condition_expression(unsigned cc){return cond((int)(cc & 7u));}
+
 /* ---- T-state cost (NMOS Z80; conditional taken-extra added at the branch) -- */
 static const uint8_t base_cyc[256] = {
 /*       0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
@@ -173,6 +175,12 @@ static int cyc_base(const Z80Insn *in){
         case Z80_PFX_ED: return ed_cyc(in->opcode);
         default: return base_cyc[in->opcode];
     }
+}
+
+int z80_instruction_base_cycles(const Z80Insn *in){
+    if(!in || in->length<1 || in->length>4 || (unsigned)in->prefix>Z80_PFX_FDCB)
+        return -1;
+    return cyc_base(in);
 }
 
 /* ---- target resolution ---- */
@@ -642,11 +650,13 @@ static Z80EmitResult emit_transaction(FILE *output,FILE *scratch,
  const Z80Insn *in,uint16_t address,int live) {
  if(!output||!scratch||output==scratch||!in||in->length<1||in->length>4||
     (unsigned)in->prefix>Z80_PFX_FDCB)return Z80_EMIT_INVALID;
- if(!live&&in->illegal)return Z80_EMIT_UNSUPPORTED;
+ if(live!=1&&in->illegal)return Z80_EMIT_UNSUPPORTED;
+ if(live==2&&in->cf!=Z80_CF_NONE)return Z80_EMIT_UNSUPPORTED;
  clearerr(scratch);
  if(fseek(scratch,0,SEEK_SET))return Z80_EMIT_IO;
  if(setjmp(emitter_escape))return Z80_EMIT_UNSUPPORTED;
- if(live){if(!emit_flat_live_operands(scratch,in,address))return Z80_EMIT_UNSUPPORTED;}
+ if(live==2)emit_op(scratch,in);
+ else if(live){if(!emit_flat_live_operands(scratch,in,address))return Z80_EMIT_UNSUPPORTED;}
  else emit_flat_body(scratch,in,address);
  if(ferror(scratch)||fflush(scratch))return Z80_EMIT_IO;
  const long length=ftell(scratch);
@@ -659,6 +669,9 @@ static Z80EmitResult emit_transaction(FILE *output,FILE *scratch,
   remaining-=count;
  }
  return Z80_EMIT_OK;
+}
+Z80EmitResult z80_emit_operation_body_with_scratch(FILE *output,FILE *scratch,const Z80Insn *in) {
+ return emit_transaction(output,scratch,in,0,2);
 }
 Z80EmitResult z80_emit_step_body_with_scratch(FILE *output,FILE *scratch,const Z80Insn *in,uint16_t address) {
  return emit_transaction(output,scratch,in,address,0);

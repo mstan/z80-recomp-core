@@ -11,6 +11,13 @@ int main(void){
  CHECK(z80_emit_step_body(f,&x,0)==Z80_EMIT_UNSUPPORTED && ftell(f)==0);
  x.length=0;CHECK(z80_emit_step_body(f,&x,0)==Z80_EMIT_INVALID && ftell(f)==0);
  FILE *scratch=tmpfile(),*reference=tmpfile();CHECK(scratch&&reference);
+ CHECK(z80_instruction_base_cycles(NULL)==-1);
+ unsigned char indexed_store[]={0xdd,0x36,1,0x42};
+ CHECK(z80_decode(indexed_store,4,0,&x)==4 && z80_instruction_base_cycles(&x)==19);
+ CHECK(!strcmp(z80_condition_expression(0),"!(s->f & Z80_FLAG_Z)"));
+ CHECK(!strcmp(z80_condition_expression(9),"(s->f & Z80_FLAG_Z)"));
+ unsigned char call[]={0xcd,0,1};CHECK(z80_decode(call,3,0,&x)==3);
+ CHECK(z80_emit_operation_body_with_scratch(f,scratch,&x)==Z80_EMIT_UNSUPPORTED && ftell(f)==0);
  CHECK(z80_decode(op,4,0x100,&x)==4);
  CHECK(z80_emit_step_body_with_scratch(f,scratch,&x,0x100)==Z80_EMIT_OK);
  const unsigned char simple[]={0x00};CHECK(z80_decode(simple,1,0,&x)==1);

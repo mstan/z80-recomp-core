@@ -19,6 +19,7 @@ ALU_DECL(0) ALU_DECL(1) ALU_DECL(2) ALU_DECL(3) ALU_DECL(4) ALU_DECL(5) ALU_DECL
 void native_live_observed_0(Z80State*);void native_live_observed_1(Z80State*);
 void native_live_observed_2(Z80State*);void native_live_observed_3(Z80State*);
 void native_live_observed_4(Z80State*);void native_live_observed_5(Z80State*);
+void native_operation(Z80State*);
 int main(void){Z80State a={0},b={0};native_0(&a);CHECK(a.a==0x7f && a.pc==0x102 && a.cyc==7);
  native_1(&a);CHECK(a.a==0x80 && (a.f&Z80_FLAG_P));CHECK(b.a==0 && b.cyc==0);
  native_2(&a);CHECK(a.ix==0x1000);native_3(&a);CHECK(memory[0xfff]==0x42);
@@ -66,4 +67,6 @@ int main(void){Z80State a={0},b={0};native_0(&a);CHECK(a.a==0x7f && a.pc==0x102 
   if(i>=4)CHECK(a.a==0x5b);
   b=a;memory[0x100]=0;observed[i](&a);CHECK(!memcmp(&a,&b,sizeof a));
  }
+ memset(&a,0,sizeof a);a.pc=0x1234;a.r=0xfe;a.f=0xa5;a.cyc=99;b=a;
+ native_operation(&a);b.a=0x7f;CHECK(!memcmp(&a,&b,sizeof a));
  return 0;}

@@ -34,5 +34,10 @@ int main(int argc,char **argv){
   if(z80_emit_live_operand_case(f,&in,0x100)!=Z80_EMIT_OK)return 13;
   fputs("}\n",f);
  }
+ const unsigned char operation[]={0x3e,0x7f};FILE *scratch=tmpfile();if(!scratch)return 14;
+ if(z80_decode(operation,2,0x100,&in)!=2)return 15;
+ fputs("void native_operation(Z80State *s){\n",f);
+ if(z80_emit_operation_body_with_scratch(f,scratch,&in)!=Z80_EMIT_OK)return 16;
+ fputs("}\n",f);fclose(scratch);
  return fclose(f)!=0;
 }

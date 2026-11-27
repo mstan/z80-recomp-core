@@ -35,6 +35,9 @@ explicit-PC native instruction emission. Link it from a recompiler; generated
 code still consumes only the header-only runtime contract.
 
 - `z80_decode` reports length, prefix, operands and control flow.
+- `z80_emit_operation_body_with_scratch`, `z80_instruction_base_cycles` and
+  `z80_condition_expression` serve function-oriented consumers without
+  publishing their PC, refresh register or ordinary instruction cycles.
 - `z80_emit_step_body` emits one decoded instruction with explicit PC, refresh
   register and cycle settlement. The `_with_scratch` form reuses a caller-owned
   seekable update stream throughout image generation.
@@ -45,8 +48,8 @@ code still consumes only the header-only runtime contract.
 Consumers retain image validation, function discovery, bank mapping, image
 alternatives, whole-image dispatch assembly and scheduling. The provider
 contains no ROM, captured RAM or generated game source. SMS/GG retains its
-function-oriented control-flow lowering; its flat-step path uses this shared
-explicit-PC emitter.
+function-oriented control-flow assembly; both its function and flat-step paths
+use the shared instruction lowering and timing services.
 
 Configure this repository with CMake and run CTest to check header compatibility,
 frontend rejection and scratch handling, generated native execution, mutable
