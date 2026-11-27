@@ -19,3 +19,12 @@ The first consumers are `smsggrecomp:feature/genesis-z80-step` and
 interrupt controllers, interpreters, ROM captures, and generated game code
 remain in the consumer repositories.
 
+
+The shared frontend retains the qualified instruction decoder and transactional
+explicit-PC emitter from revision `03a440a7864a87dcb582977dd1d40d9cf9a82d8a`
+of the extracted Z80 candidate. Its decoder source and header are byte-identical
+to `smsggrecomp` revision `35a84d724374edfd53a50fbb650bf8497d0fae92`.
+The current SMS/GG WZ writes for mutable absolute and indexed memory operands
+are retained alongside the qualified mutable jump and ALU shapes. These
+frontend and integration changes are Matthew Stanley contributions under MIT;
+all existing third-party notices remain applicable.

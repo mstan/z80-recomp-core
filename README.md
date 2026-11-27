@@ -30,24 +30,31 @@ add_subdirectory(external/z80-recomp-core)
 target_link_libraries(my_generated_z80 PRIVATE z80-recomp-core::core)
 ```
 
-The decoder and C emitter currently remain in `smsggrecomp`; this repository is
-the platform-neutral runtime/semantic layer their output consumes. It contains
-no ROM, captured Z80 RAM, generated game source, emulator, or platform bus.
+The `z80-recomp-core::frontend` static library owns instruction decoding and
+explicit-PC native instruction emission. Link it from a recompiler; generated
+code still consumes only the header-only runtime contract.
+
+- `z80_decode` reports length, prefix, operands and control flow.
+- `z80_emit_step_body` emits one decoded instruction with explicit PC, refresh
+  register and cycle settlement. The `_with_scratch` form reuses a caller-owned
+  seekable update stream throughout image generation.
+- `z80_emit_live_operand_case` emits guarded, statically decoded shapes whose
+  mutable operands are read live. Unsupported shapes leave output unchanged.
+  Opcode mismatches do not retire an instruction or change CPU state.
+
+Consumers retain image validation, function discovery, bank mapping, image
+alternatives, whole-image dispatch assembly and scheduling. The provider
+contains no ROM, captured RAM or generated game source. SMS/GG retains its
+function-oriented control-flow lowering; its flat-step path uses this shared
+explicit-PC emitter.
+
+Configure this repository with CMake and run CTest to check header compatibility,
+frontend rejection and scratch handling, generated native execution, mutable
+operands, WZ observation and ordered 16-bit bus reads. Embedding the provider
+does not add these standalone tests to the consumer build.
 
 ## Licensing and provenance
 
-For this project's code covered by the [PolyForm Noncommercial License](LICENSE),
-[PERMISSIONS.md](PERMISSIONS.md) grants standing permission for voluntary
-donations, sponsorships, and advertising revenue, including support for broader
-development initiatives. Payment must not buy access to the software, games
-built with it, or their updates, features, or game content, including early access.
-
-Matthew Stanley has authority from the relevant copyright holders to grant
-these permissions for the project's PolyForm-covered code. Third-party
-components and code explicitly licensed under other terms retain those terms.
-
-Author-owned extraction/glue is licensed under the included PolyForm
-Noncommercial License 1.0.0. Instruction semantic helpers were derived from
-Nicolas Allemand's MIT-licensed SuperZazu Z80 core; its notice is retained in
-`LICENSES/SUPERZAZU-MIT.txt`. See `PROVENANCE.md` for extraction details.
-
+The core is MIT licensed. SuperZazu-derived semantic helpers retain Nicolas
+Allemand's attribution and the complete notice in `LICENSES/SUPERZAZU-MIT.txt`.
+See [LICENSE-SCOPE.md](LICENSE-SCOPE.md) and [PROVENANCE.md](PROVENANCE.md).
